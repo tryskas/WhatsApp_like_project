@@ -1,0 +1,47 @@
+<html class="js serviceworker adownload cssanimations csstransitions webp exiforientation webp-alpha webp-animation webp-lossless wf-loading" dir="LTR" loc="fr" lang="fr">
+   <head>
+      <style>
+         body {
+            background-image: url('img/background.png');
+         }
+      </style>
+      <meta charset="utf-8">
+      <title>WhatsUp</title> 
+      {% load static %}
+      <link rel="icon" sizes="192x192" href="{% static './img/icon.png' %}" type="image/png">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">  
+   </head>
+   
+   <body class="web dark">
+      <div id="app">
+         <div>
+            <div class="two _1jJ70">
+               <div class="container-lg">
+
+                  <!-- formulaire de connexion -->
+                  <form action="{% url 'my_login_view' %}" method="POST">
+                     {% csrf_token %}
+                     <div class="container">
+
+                     <!-- champ pour le nom d utilisateur -->
+                     <label for="pseudo"><a>Username</a></label>
+                     <input type="text" placeholder="Enter Username" name="pseudo" required>
+                   
+                     <!-- champ pour le mot de passe -->
+                     <label for="psw"><a>Password</a></label>
+                     <input type="password" placeholder="Enter Password" name="password" required>
+                           
+                     <!-- bouton de soumission du formulaire -->
+                     <input type="hidden" name="next" value="{{ request.GET.next }}">
+                     <button type="submit" id="login">Login</button>
+
+                     <!-- lien vers la page de creation de compte -->
+                     <a href="{% url 'create_user' %}"> You are new ? Click here </a>
+                     </div>  
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

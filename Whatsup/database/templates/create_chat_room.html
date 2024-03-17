@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Créer un Salon</title>
+    </head>
+    
+    <body>
+        <h1>Créer un Salon</h1>
+
+        <!-- formulaire de creation de salle de conversation -->
+        <form method="post" action="{% url 'create_chat_room' %}">
+            {% csrf_token %}
+
+            <!-- affiche les champs du formulaire en tant que paragraphes -->
+            {{ form.as_p }}
+
+            <!-- bouton pour soumettre le formulaire -->
+            <button type="submit">Créer le Salon</button>
+        </form>
+    </body>
+</html>

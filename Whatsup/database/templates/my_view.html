@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html class="js serviceworker adownload cssanimations csstransitions webp exiforientation webp-alpha webp-animation webp-lossless wf-loading" dir="LTR" loc="fr" lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>WhatsUp</title> 
+        {% load static %}
+        <link rel="icon" sizes="192x192" href="{% static './img/icon.png' %}" type="image/png">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}"> 
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var bouton = document.getElementById('toggleButton');
+                var bouton2 = document.getElementById('logout');
+                var elementAffecte = document.getElementById('createroom');
+
+                bouton.addEventListener('click', function () {
+                    elementAffecte.classList.toggle('cacher');
+                });    
+            });
+        </script>  
+    </head>
+       
+    <body class="web dark">
+        <div id="app">
+            <div>
+                <div class="two _1jJ70">  
+
+                    <!-- formulaire de creation de salle de conversation -->
+                    <div id="createroom" class="cacher">
+                        <div class="createroom" >
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                {{ chat_room_form.as_p }}
+                                <button type="submit">Create Chat Room</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- liste des salles de conversation de l utilisateur -->
+                    <div class="container-chatnav">
+                        {% for chat_room in user_chat_rooms %}
+                            <div class="groupe" ><a href="{% url 'chat_room_detail' room_id=chat_room.id %}">{{ chat_room.name }}</a></div>
+                        {% endfor %}
+                    </div>
+                    <div class="container-chat">
+                    </div>
+                    <div class="barenhaut">
+                        
+                        <!-- bouton pour afficher/cacher le formulaire de creation de salle de conversation -->
+                        <input type="image" id="toggleButton"  alt="add" src="{% static './img/add.png' %}" />    
+                        <form method="post" action="{% url 'logout' %}" id="barre" class="iconbar"  >
+                            
+                            <!-- formulaire de deconnexion -->
+                            {% csrf_token %}
+                            <input type="image" name="submit" src="{% static './img/logout.png' %}"  alt="Submit" id="logout" />
+                        </form>  
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

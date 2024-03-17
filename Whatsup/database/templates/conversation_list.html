@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat Rooms</title>
+    </head>
+    
+    <body>
+        <h2>Chat Rooms</h2>
+
+        <!-- liste des salles de conversation -->
+        <ul>
+            {% for chat_room in chat_rooms %}
+                <li>
+
+                    <!-- lien vers la page de detail de la salle de conversation -->
+                    <a href="{% url 'chat_room_detail' room_id=chat_room.id %}">{{ chat_room.name }}</a>
+
+                    <!-- liste des messages dans la salle de conversation -->
+                    <ul>
+                        {% for message in chat_room.messages.all %}
+                            <li>{{ message.user.username }}: {{ message.content }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

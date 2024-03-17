@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="js serviceworker adownload cssanimations csstransitions webp exiforientation webp-alpha webp-animation webp-lossless wf-loading" dir="LTR" loc="fr" lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>WhatsUp</title> 
+        {% load static %}
+        <link rel="icon" sizes="192x192" href="{% static './img/icon.png' %}" type="image/png">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+          
+        <style>
+            .current-user-message {
+                padding-left: 50px;
+                font-weight: bold;
+            }
+
+            .message-info {
+                opacity: 0.5;
+            }
+
+            .message-content {
+                opacity: 1;
+            }
+        </style>
+
+        <script>
+
+            // S'exécute lorsque le DOM est entièrement chargé
+            document.addEventListener('DOMContentLoaded', function () {
+                // Écouteur d'événements pour le bouton de bascule
+                var bouton = document.getElementById('toggleButton');
+                var bouton2 = document.getElementById('logout');
+                var elementAffecte = document.getElementById('createroom');
+
+                bouton.addEventListener('click', function () {
+                    // Bascule la classe 'cacher' sur l'élément affecté
+                    elementAffecte.classList.toggle('cacher');
+                });
+                  
+            });
+
+            // Dictionnaire pour suivre les messages déjà affichés
+            var displayedMessages = {};
+
+            // Fonction pour obtenir les mises à jour des messages
+            function getUpdates(roomId, lastMessageId) {
+                $.get('/get_updates/', {room_id: roomId, last_message_id: lastMessageId}, function(response) {
+                    if (response && response.messages && response.messages.length > 0) {
+                        for (var i = 0; i < response.messages.length; i++) {
+                            var message = response.messages[i];
+                            if (!displayedMessages[message.id]) {
+
+                                // Crée le conteneur de message avec les mêmes classes que dans la boucle d'affichage initial
+                                var messageContainer = '<p class="' + (message.user === '{{ request.user.username }}' ? 'bubble-textdroite' : 'bubble-textgauche') + ' message-container" data-message-id="' + message.id + '">';
+                                
+                                // Ajoute les informations sur le message
+                                messageContainer += '<span class="message-info">';
+                                messageContainer += message.user + ' - ' + message.timestamp + ' ';
+
+                                // Ajoute le bouton "Delete Message" pour le modérateur
+                                {% if is_moderator %}
+                                    messageContainer += '<button onclick="deleteMessage(' + message.id + ')">Supprimer le message</button>';
+                                {% endif %}
+                                
+                                messageContainer += '</span>';
+                                
+                                // Ajoute le contenu du message
+                                messageContainer += '<br><span class="message-content">' + message.content + '</span>';
+                                
+                                messageContainer += '</p>';
+                                
+                                // Ajoute le conteneur de message à la liste
+                                $('#message-list').append(messageContainer);
+                                displayedMessages[message.id] = true;
+                            }
+                        }
+                    }
+
+                    // Obtient les mises à jour récentes
+                    getUpdates(roomId, response && response.messages && response.messages.length > 0 ? response.messages[response.messages.length - 1].id : lastMessageId);
+                });
+            }
+
+
+            $(document).ready(function() {
+                // Initialisation avec les messages déjà présents sur la page
+                $('#message-list p').each(function() {
+                    var messageId = $(this).data('message-id');
+                    displayedMessages[messageId] = true;
+                });
+
+                // Lance la récupération des mises à jour
+                getUpdates({{ chat_room.id }}, 0);
+            });
+
+            // Obtient les mises à jour toutes les 3 secondes
+            setInterval(function() {
+                getUpdates({{ chat_room.id }}, $('#message-list p:last').data('message-id') || 0);
+            }, 3000);
+
+            // Fonction pour insérer une émoticône dans le champ de message
+            function insertEmoticon(emoticon) {
+                var messageInput = $('#messageInput');
+                messageInput.val(messageInput.val() + emoticon);
+            }
+
+            // Fonction pour obtenir la valeur d'un cookie par son nom
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        // Recherche du nom du cookie
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Fonction pour supprimer un message
+            function deleteMessage(messageId) {
+                // Obtient le jeton CSRF depuis les cookies
+                var csrftoken = getCookie('csrftoken');
+
+                // Envoie de la requête AJAX pour supprimer le message
+                $.ajax({
+                    url: '/delete_message/' + messageId + '/',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    success: function(data) {
+
+                        // Supprime le message côté client
+                        $('#message-list p[data-message-id="' + messageId + '"]').remove();
+                    },
+                    error: function(error) {
+                        console.error('Erreur lors de la suppression du message :', error);
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body class="web dark">
+       <div id="app">
+          
+          <div>
+             <div class="two _1jJ70"> 
+
+                <!-- Inclut le formulaire de création de salon de discussion -->
+                <div id="createroom" class="cacher">
+                    <div class="createroom" >
+                        <form method="post" action="{% url 'create_chat_room' %}">
+                            {% csrf_token %}
+                            {{ create_chat_room_form.as_p }}
+                            <button type="submit">Créer une salle de discussion</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="container-chatnav">
+                   {% for chat_room in user_chat_rooms %}
+                      <div class="groupe" ><a href="{% url 'chat_room_detail' room_id=chat_room.id %}">{{ chat_room.name }}</a></div>
+                   {% endfor %}
+                </div>
+
+                <div class="container-chat">
+                    
+                    <div class="chat">
+                        
+                        <div class="chatDG" id="message-list">
+                            
+                            {% for message in messages %}
+
+                                <p class="{% if message.user.username == request.user.username %}bubble-textdroite{% else %}bubble-textgauche{% endif %} " data-message-id="{{ message.id }}">
+
+                                <!-- Informations sur le message -->
+                                <span class="message-info">
+                                    {{ message.user.username }} - {{ message.timestamp|date:"Y-m-d H:i:s" }}
+                                    {% if is_moderator %}
+
+                                        <!-- Bouton "Delete Message" pour le modérateur -->
+                                        <button onclick="deleteMessage({{ message.id }})">Supprimer le message</button>
+                                    {% endif %}
+                                </span>
+                                <br>
+                                
+                                <!-- Utilisateur qui écrit -->
+                                {{ message.content }}                            
+                                </p>
+                            {% endfor %}
+                            
+                                
+                            
+                        </div>
+                        <div class="barremessage">
+                            <form method="post" action="" class="myForm">
+                                {% csrf_token %}
+                                <div>
+                                    
+                                    <!-- Section d'émoticônes dans le champ content -->
+                                    <select id="emoticons" name="emoticons" onchange="insertEmoticon(this.value)">
+                                        <option value="😊">😊</option>
+                                        <option value="😄">😄</option>
+                                        <option value="😉">😉</option>
+
+                                        <!-- Ajoutez d'autres émoticônes avec des balises option similaires -->
+                                    </select>
+                                    <input type="text" id="messageInput" name="content">
+                                    <button type="submit">Envoyer</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="fondailleur">
+                        </div>
+                    </div>
+                </div>
+                <div class="barenhaut">
+                    <input type="image" id="toggleButton"  alt="add" src="{% static './img/add.png' %}" />    
+                    <form method="post" action="{% url 'logout' %}" id="barre" class="iconbar"  >
+                        {% csrf_token %}
+                        <input type="image" name="submit" src="{% static './img/logout.png' %}"  alt="Submit" id="logout" />
+                    </form> 
+                    <span class="titre" >{{ chat_room.name }}</span>
+                </div>
+             </div>
+          </div>
+       </div>
+    </body>
+</html>

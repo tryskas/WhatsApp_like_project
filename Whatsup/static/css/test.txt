@@ -1,0 +1,36 @@
+.chat{
+    width: 100%;
+    height: 100%;
+    position:absolute;
+    background-color:red;
+    
+    
+}
+.barremessage{
+    background-color: blue;
+    width: 100%;
+    height: 10vh;
+    margin-top: 80vh;
+    position:absolute;
+    z-index:100;
+}
+.chatDG{
+    width:100%;
+    height:100%;
+    background-color:magenta;
+    position:absolute;
+}
+.chatgauche{
+    width:50%;
+    height:100%;
+    position:absolute;
+    margin-right:40%;
+    background-color:black;
+}
+.chatdroit{
+    width:50%;
+    height:100%;
+    position:absolute;
+    background-color:yellow;
+    margin-left:40%;
+}

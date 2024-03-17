@@ -1,0 +1,60 @@
+<html class="js serviceworker adownload cssanimations csstransitions webp exiforientation webp-alpha webp-animation webp-lossless wf-loading" dir="LTR" loc="fr" lang="fr">
+    <head>
+        <style>
+            body {
+                background-image: url('img/background.png');
+            }
+        </style>
+        <meta charset="utf-8">
+        <title>WhatsUp</title> 
+        {% load static %}
+        <link rel="icon" sizes="192x192" href="{% static './img/icon.png' %}" type="image/png">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    </head>
+    
+    <body class="web dark">
+        <div id="app"> 
+            <div>
+                <div class="two _1jJ70">
+                    <div class="container-reg">
+
+                        <!-- formulaire de creation d utilisateur -->
+                        <form method="post">
+                            <div class="container">
+                                {% csrf_token %}
+
+                                <!-- champ pour le nom de l utilisateur -->
+                                <label for="{{ form.nom.id_for_label }}"><a>Nom:</a></label>
+                                <input type="text" name="{{ form.nom.name }}" id="{{ form.nom.id_for_label }}" required>
+                                <br>
+
+                                <!-- champ pour le prenom de l utilisateur -->
+                                <label for="{{ form.prenom.id_for_label }}"><a>Prénom:</a></label>
+                                <input type="text" name="{{ form.prenom.name }}" id="{{ form.prenom.id_for_label }}" required>
+                                <br>
+
+                                <!-- champ pour le pseudo de l utilisateur -->
+                                <label for="{{ form.pseudo.id_for_label }}"><a>Pseudo:</a></label>
+                                <input type="text" name="{{ form.pseudo.name }}" id="{{ form.pseudo.id_for_label }}" required>
+                                <br>
+
+                                <!-- champ pour le mot de passe de l utilisateur -->
+                                <label for="{{ form.password1.id_for_label }}"><a>Mot de passe:</a></label>
+                                <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" required>
+                                <br>
+
+                                <!-- champ pour confirmer le mot de passe de l utilisateur -->
+                                <label for="{{ form.password2.id_for_label }}"><a>Confirmer le mot de passe:</a></label>
+                                <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" required>
+                                <br>
+
+                                <!-- bouton pour soumettre le formulaire -->
+                                <button type="submit" id="login">Créer un utilisateur</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
